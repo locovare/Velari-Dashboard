@@ -16,11 +16,8 @@ export class WelcomeScreen {
         <div class="glass-effect rounded-2xl p-8 md:p-12 max-w-md w-full text-center">
           <!-- Logo/Brand -->
           <div class="mb-8">
-            <div class="w-20 h-20 bg-gradient-to-br from-discord-blurple to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 14a6 6 0 1112 0 6 6 0 01-12 0z"/>
-                <path d="M10 6a4 4 0 100 8 4 4 0 000-8z"/>
-              </svg>
+            <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <img src="@Velari_Logo.png" alt="Velari Logo" class="w-full h-full rounded-full"/>
             </div>
             <h1 class="text-3xl font-bold text-white mb-2">Velari</h1>
             <p class="text-gray-200 text-lg">Discord Bot Dashboard</p>
