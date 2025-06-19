@@ -76,17 +76,4 @@ export class DiscordAPI {
     })
     return `https://discord.com/api/oauth2/authorize?${params.toString()}`
   }
-
-  public async checkBotInGuild(guildId: string, token: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.API_BASE}/guilds/${guildId}`, {
-        headers: {
-          Authorization: `Bot ${token}`,
-        },
-      })
-      return response.ok
-    } catch {
-      return false
-    }
-  }
 } 

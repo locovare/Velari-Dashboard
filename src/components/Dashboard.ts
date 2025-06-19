@@ -32,6 +32,24 @@ export class Dashboard {
       const allGuilds = await this.discordAPI.getUserGuilds(token)
       const ADMINISTRATOR = 0x8
       this.guilds = allGuilds.filter(guild => (parseInt(guild.permissions) & ADMINISTRATOR) === ADMINISTRATOR)
+
+      // Check if the bot is in each guild using backend API
+      await Promise.all(this.guilds.map(async (guild) => {
+        try {
+          const resp = await fetch(`/api/check-bot-in-guild?guildId=${guild.id}`)
+          const data = await resp.json()
+          guild.botInGuild = data.inGuild
+        } catch {
+          guild.botInGuild = false
+        }
+      }))
+
+      // TEMP: Mark a specific guild as having the bot for testing (must be after async check)
+      this.guilds.forEach(guild => {
+        if (guild.name === "Gruuntages") {
+          guild.botInGuild = true;
+        }
+      });
     } catch (error) {
       console.error('Failed to load user data:', error)
       localStorage.removeItem('discord_token')
@@ -194,16 +212,30 @@ export class Dashboard {
             <span>Server ID: ${guild.id}</span>
           </div>
           
-          <button 
-            data-guild-id="${guild.id}" 
-            data-guild-name="${guild.name}"
-            class="invite-btn w-full py-2 px-4 bg-discord-blurple hover:bg-discord-blurple/80 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2"
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
-            </svg>
-            <span>Invite Velari</span>
-          </button>
+          ${guild.botInGuild ? `
+            <a 
+              href="#" 
+              data-guild-id="${guild.id}" 
+              data-guild-name="${guild.name}"
+              class="view-dashboard-link w-full py-2 px-4 bg-discord-green hover:bg-discord-green/80 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 text-center"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+              </svg>
+              <span>View Dashboard</span>
+            </a>
+          ` : `
+            <button 
+              data-guild-id="${guild.id}" 
+              data-guild-name="${guild.name}"
+              class="invite-btn w-full py-2 px-4 bg-discord-blurple hover:bg-discord-blurple/80 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
+              </svg>
+              <span>Invite Velari</span>
+            </button>
+          `}
         </div>
       </div>
     `).join('')
@@ -245,6 +277,18 @@ export class Dashboard {
         }
       })
     })
+
+    // Add event listeners for view dashboard buttons
+    const viewDashboardBtns = this.container.querySelectorAll('.view-dashboard-link')
+    viewDashboardBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement
+        const guildId = target.getAttribute('data-guild-id')
+        if (guildId) {
+          this.renderServerDashboard(guildId)
+        }
+      })
+    })
   }
 
   private handleInviteBot(guildId: string, guildName: string): void {
@@ -267,5 +311,85 @@ export class Dashboard {
     setTimeout(() => {
       notification.remove()
     }, 3000)
+  }
+
+  // Render a simple server dashboard for the selected guild
+  private renderServerDashboard(guildId: string): void {
+    const guild = this.guilds.find(g => g.id === guildId)
+    if (!guild) return
+    this.container.innerHTML = `
+      <div class="min-h-screen bg-gradient-to-br from-discord-darkest via-discord-dark to-discord-darker">
+        <header class="glass-effect border-b border-white/10">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+              <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-discord-blurple to-purple-600 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 14a6 6 0 1112 0 6 6 0 01-12 0z"/>
+                    <path d="M10 6a4 4 0 100 8 4 4 0 000-8z"/>
+                  </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">${guild.name} Dashboard</h1>
+              </div>
+              <button id="back-to-servers" class="px-4 py-2 bg-discord-blurple hover:bg-discord-blurple/80 text-white rounded-lg transition-colors">Back to Servers</button>
+            </div>
+          </div>
+        </header>
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 class="text-3xl font-bold text-white mb-2">Server Overview</h2>
+              <p class="text-gray-300">Member count, uptime, stats (mocked)</p>
+            </div>
+            <div>
+              <label for="server-switcher" class="text-gray-400 mr-2">Switch Server:</label>
+              <select id="server-switcher" class="bg-discord-dark text-white rounded px-3 py-2">
+                ${this.guilds.map(g => `<option value="${g.id}" ${g.id === guildId ? 'selected' : ''}>${g.name}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass-effect rounded-xl p-6">
+              <h3 class="text-xl font-semibold text-white mb-2">Quick Module Toggles</h3>
+              <div class="flex flex-col space-y-2">
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" checked class="form-checkbox text-discord-blurple" disabled>
+                  <span class="text-gray-200">Welcome</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" checked class="form-checkbox text-discord-blurple" disabled>
+                  <span class="text-gray-200">Tickets</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" checked class="form-checkbox text-discord-blurple" disabled>
+                  <span class="text-gray-200">Moderation</span>
+                </label>
+              </div>
+            </div>
+            <div class="glass-effect rounded-xl p-6 md:col-span-2">
+              <h3 class="text-xl font-semibold text-white mb-2">Recent Activity Logs</h3>
+              <ul class="text-gray-300 space-y-1">
+                <li>[12:01] User#1234 joined the server</li>
+                <li>[12:03] Ticket #42 opened by User#5678</li>
+                <li>[12:05] User#1234 was given the Member role</li>
+                <li>[12:10] Welcome message sent to #general</li>
+              </ul>
+            </div>
+          </div>
+        </main>
+      </div>
+    `
+    // Add event listener for back button and server switcher
+    const backBtn = this.container.querySelector('#back-to-servers')
+    if (backBtn) {
+      backBtn.addEventListener('click', () => this.render())
+    }
+    const switcher = this.container.querySelector('#server-switcher') as HTMLSelectElement
+    if (switcher) {
+      switcher.addEventListener('change', (e) => {
+        const newId = (e.target as HTMLSelectElement).value
+        this.renderServerDashboard(newId)
+      })
+    }
   }
 } 

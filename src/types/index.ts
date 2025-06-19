@@ -14,6 +14,7 @@ export interface DiscordGuild {
   permissions: string
   features: string[]
   permissions_new: string
+  botInGuild?: boolean
 }
 
 export interface DiscordTokenResponse {
