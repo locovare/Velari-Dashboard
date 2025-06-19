@@ -1,4 +1,4 @@
-import { DiscordUser, DiscordGuild, DiscordTokenResponse, BotInviteResponse } from '../types'
+import { DiscordUser, DiscordGuild, DiscordTokenResponse } from '../types'
 
 export class DiscordAPI {
   private readonly CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || 'YOUR_DISCORD_CLIENT_ID'

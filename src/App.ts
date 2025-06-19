@@ -4,7 +4,6 @@ import { DiscordAPI } from './services/DiscordAPI'
 
 export class App {
   private container: HTMLElement
-  private currentScreen: WelcomeScreen | Dashboard | null = null
   private discordAPI: DiscordAPI
 
   constructor(container: HTMLElement) {
@@ -25,14 +24,12 @@ export class App {
 
   public showWelcome(): void {
     this.clearContainer()
-    this.currentScreen = new WelcomeScreen(this.container, () => {
-      this.showDashboard()
-    })
+    new WelcomeScreen(this.container)
   }
 
   public showDashboard(): void {
     this.clearContainer()
-    this.currentScreen = new Dashboard(this.container, this.discordAPI, () => {
+    new Dashboard(this.container, this.discordAPI, () => {
       this.showWelcome()
     })
   }

@@ -2,12 +2,10 @@ import { DiscordAPI } from '../services/DiscordAPI'
 
 export class WelcomeScreen {
   private container: HTMLElement
-  private onLoginSuccess: () => void
   private discordAPI: DiscordAPI
 
-  constructor(container: HTMLElement, onLoginSuccess: () => void) {
+  constructor(container: HTMLElement) {
     this.container = container
-    this.onLoginSuccess = onLoginSuccess
     this.discordAPI = new DiscordAPI()
     this.render()
   }
