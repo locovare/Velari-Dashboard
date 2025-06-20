@@ -2,6 +2,7 @@
   "name": "velari-dashboard",
   "version": "1.0.0",
   "description": "Discord bot dashboard for Velari",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",

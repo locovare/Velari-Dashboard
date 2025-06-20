@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import { corsMiddleware } from './src/middleware/cors'
 import path from 'path'
 import dotenv from 'dotenv'
-import { BotSettings, AutoRolesSettings, ReactionRoleMenu, LogEntry, ServerAnalytics, PermissionSettings, LicenseKey, KeyRedemptionLog, Product, Subscription, Transaction, Customer, SalesAnalytics, Storefront, StoreProduct, StoreOrder, StoreCustomer, PromoCode, StoreSubscription, StoreAnalytics } from './src/types'
+import { BotSettings, AutoRolesSettings, ReactionRoleMenu, ServerAnalytics, PermissionSettings, LicenseKey, KeyRedemptionLog, Product, Subscription, Transaction, Customer, SalesAnalytics, Storefront, StoreProduct, StoreOrder, StoreCustomer, PromoCode, StoreAnalytics } from './src/types'
 
 // Load environment variables
 dotenv.config()
@@ -413,7 +413,7 @@ export default defineConfig({
             }
             
             const hash = simpleHash(guildId);
-            const logs: LogEntry[] = [
+            const logs = [
                 { id: `log-${hash}-1`, timestamp: new Date(Date.now() - 60000 * 2).toISOString(), userId: '267385848323375105', userTag: 'User#1234', type: 'moderation', action: 'Banned `AnotherUser#5678` for spam.' },
                 { id: `log-${hash}-2`, timestamp: new Date(Date.now() - 60000 * 5).toISOString(), userId: '367385848323375106', userTag: 'Admin#0001', type: 'tickets', action: 'Closed ticket #1138 (`Bug Report`).' },
                 { id: `log-${hash}-3`, timestamp: new Date(Date.now() - 60000 * 10).toISOString(), userId: '467385848323375107', userTag: 'NewUser#9999', type: 'joins_leaves', action: 'Joined the server.' },
@@ -674,8 +674,8 @@ export default defineConfig({
                   }
 
                   if (path === '/subscriptions') {
-                      const subscriptions: StoreSubscription[] = [
-                          { id: `sub-${hash}-1`, storefrontId: `store-${hash}`, customerId: `cust-${hash}-1`, productId: `prod-${hash}-1`, status: 'active', currentPeriodStart: new Date().toISOString(), currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), cancelAtPeriodEnd: false, createdAt: new Date().toISOString() }
+                      const subscriptions: Subscription[] = [
+                          { id: `sub-${hash}-1`, customerId: `cust-${hash}-1`, productId: `prod-${hash}-1`, status: 'active', currentPeriodStart: new Date().toISOString(), currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), cancelAtPeriodEnd: false, createdAt: new Date().toISOString() }
                       ];
                       res.writeHead(200, { 'Content-Type': 'application/json' });
                       res.end(JSON.stringify(subscriptions));
